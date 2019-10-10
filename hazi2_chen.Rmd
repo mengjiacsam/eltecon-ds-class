@@ -1,0 +1,54 @@
+---
+title: "2. Homework"
+author: "Chen Meng Jia"
+date: "10/10/2019"
+output: html_document
+# runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.width = 12)
+knitr::opts_chunk$set(fig.align = 'center')
+
+```
+
+
+```{r}
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(magrittr))
+# suppressPackageStartupMessages(library(plotly))
+# suppressPackageStartupMessages(library(shiny))
+```
+
+```{r}
+
+crime_dt<- fread("data/crime.csv")
+```
+```{r}
+
+shootings<-crime_dt[SHOOTING == "Y"]
+#Megnézzük először, hogy mi az 5 leggyakoribb előfordulás, ahol SHOOTING=Y-nal:
+tail(sort(table(shootings$OFFENSE_CODE_GROUP)),5)
+
+
+crime_freq <- names(sort(table(shootings$OFFENSE_CODE_GROUP), decreasing=TRUE)[1:5])
+
+#Összekötöttük az előző eredményt a shootinggal
+result<-shootings[OFFENSE_CODE_GROUP%in%crime_freq]
+show(result)
+#Mostantól csak azokat mutatja, ahol Shooting oszlop = y és az OFFENSE_CODE_GROUP oszlopban 
+#az 5leggyakoribb csoport található.1-2 feladat
+``` 
+```{r}
+result[, .N,c("HOUR","OFFENSE_CODE_GROUP")]%>%
+  ggplot() +
+  geom_point(aes(x = HOUR, y = N, color = OFFENSE_CODE_GROUP), show.legend = FALSE) +
+  facet_wrap(~OFFENSE_CODE_GROUP, nrow = 1)+
+  labs(
+    title= "The 5 most common crimes which includes shooting",
+    x="Hour",
+    y="Number of crimes"
+  )
+```
